@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -15,6 +16,13 @@ namespace Magnifying_Glass
         private DispatcherTimer _timer;
         private double _magnification = 2.0;
         private int _magnifierSize = 200;
+
+        // Zero-allocation buffer fields
+        private Bitmap _captureBmp;
+        private Graphics _captureGraphics;
+        private WriteableBitmap _writeableBitmap;
+        private int _lastCaptureWidth;
+        private int _lastCaptureHeight;
 
         public MagnifierWindow()
         {
@@ -109,30 +117,37 @@ namespace Magnifying_Glass
             int startX = centerX - (captureWidth / 2);
             int startY = centerY - (captureHeight / 2);
 
-            using (Bitmap bmp = new Bitmap(captureWidth, captureHeight, PixelFormat.Format32bppArgb))
+            if (_captureBmp == null || _lastCaptureWidth != captureWidth || _lastCaptureHeight != captureHeight)
             {
-                using (Graphics g = Graphics.FromImage(bmp))
-                {
-                    g.CopyFromScreen(startX, startY, 0, 0, new System.Drawing.Size(captureWidth, captureHeight), CopyPixelOperation.SourceCopy);
-                }
+                _captureGraphics?.Dispose();
+                _captureBmp?.Dispose();
+                _captureBmp = new Bitmap(captureWidth, captureHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                _captureGraphics = Graphics.FromImage(_captureBmp);
 
-                IntPtr hBitmap = bmp.GetHbitmap();
-                try
-                {
-                    MagnifierBrush.ImageSource = Imaging.CreateBitmapSourceFromHBitmap(
-                        hBitmap,
-                        IntPtr.Zero,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                }
-                finally
-                {
-                    DeleteObject(hBitmap);
-                }
+                // Initialize a high-performance WriteableBitmap
+                _writeableBitmap = new WriteableBitmap(captureWidth, captureHeight, 96, 96, PixelFormats.Bgra32, null);
+                MagnifierBrush.ImageSource = _writeableBitmap;
+
+                _lastCaptureWidth = captureWidth;
+                _lastCaptureHeight = captureHeight;
             }
-            
+
+            // 1. Copy screen to reusable RAM Bitmap
+            _captureGraphics.CopyFromScreen(startX, startY, 0, 0, new System.Drawing.Size(captureWidth, captureHeight), CopyPixelOperation.SourceCopy);
+
+            // 2. Perform direct memory transplant to WPF rendering buffer (0 GC Allocations, Lightning Fast)
+            BitmapData data = _captureBmp.LockBits(new Rectangle(0, 0, captureWidth, captureHeight), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            _writeableBitmap.Lock();
+            CopyMemory(_writeableBitmap.BackBuffer, data.Scan0, (uint)(data.Stride * captureHeight));
+            _writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, captureWidth, captureHeight));
+            _writeableBitmap.Unlock();
+            _captureBmp.UnlockBits(data);
+
             this.Visibility = Visibility.Visible;
         }
+
+        [DllImport("kernel32.dll", EntryPoint = "RtlMoveMemory")]
+        private static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
 
         [DllImport("gdi32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
