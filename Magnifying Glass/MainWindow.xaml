@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Magnifying_Glass"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="放大镜" Height="450" Width="800">
     <Window.Background>
         <SolidColorBrush Color="#2D2D30"/>
     </Window.Background>
@@ -17,15 +17,18 @@
             </Style>
         </StackPanel.Resources>
 
-        <TextBlock Text="Zoom Level: x2.0" x:Name="TxtZoom"/>
+        <TextBlock Text="缩放级别: x2.0" x:Name="TxtZoom"/>
         <Slider x:Name="SldZoom" Minimum="1" Maximum="5" Value="2" TickFrequency="0.1" IsSnapToTickEnabled="True" ValueChanged="SldZoom_ValueChanged"/>
 
-        <TextBlock Text="Size: 200px" x:Name="TxtSize"/>
+        <TextBlock Text="范围大小: 200px" x:Name="TxtSize"/>
         <Slider x:Name="SldSize" Minimum="100" Maximum="600" Value="200" TickFrequency="10" IsSnapToTickEnabled="True" ValueChanged="SldSize_ValueChanged"/>
 
-        <TextBlock Text="Hotkeys:" FontWeight="Bold" Margin="0,20,0,5"/>
-        <TextBlock Text="F8: Hide/Show Control Panel"/>
-        <TextBlock Text="F9: Enable/Disable Magnifier"/>
+        <TextBlock Text="刷新率: 60 FPS (延迟 ~16ms)" x:Name="TxtFps"/>
+        <Slider x:Name="SldFps" Minimum="10" Maximum="144" Value="60" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="SldFps_ValueChanged"/>
+
+        <TextBlock Text="快捷键:" FontWeight="Bold" Margin="0,20,0,5"/>
+        <TextBlock Text="F8: 隐藏/显示 控制面板"/>
+        <TextBlock Text="F9: 启用/禁用 放大镜"/>
 
     </StackPanel>
 </Window>

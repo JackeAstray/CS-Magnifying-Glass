@@ -85,6 +85,17 @@ namespace Magnifying_Glass
             }
         }
 
+        private void SldFps_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TxtFps != null && _magnifierWindow != null)
+            {
+                int fps = (int)e.NewValue;
+                int ms = 1000 / fps;
+                TxtFps.Text = $"刷新率: {fps} FPS (延迟 ~{ms}ms)";
+                _magnifierWindow.UpdateFps(fps);
+            }
+        }
+
         private const int F8_HOTKEY_ID = 9000;
         private const int F9_HOTKEY_ID = 9001;
 

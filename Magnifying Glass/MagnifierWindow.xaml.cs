@@ -28,6 +28,7 @@ namespace Magnifying_Glass
         {
             this.Width = _magnifierSize;
             this.Height = _magnifierSize;
+            MagnifierBorder.CornerRadius = new CornerRadius(_magnifierSize / 2.0);
             CenterWindow();
         }
 
@@ -57,12 +58,21 @@ namespace Magnifying_Glass
             _magnifierSize = size;
             this.Width = size;
             this.Height = size;
+            MagnifierBorder.CornerRadius = new CornerRadius(size / 2.0);
             CenterWindow();
+        }
+
+        public void UpdateFps(int fps)
+        {
+            if (_timer != null)
+            {
+                _timer.Interval = TimeSpan.FromMilliseconds(1000.0 / fps);
+            }
         }
 
         private void StartCapture()
         {
-            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) }; // roughly 60 FPS
+            _timer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(5) }; // fast refresh
             _timer.Tick += (s, e) => CaptureScreen();
         }
 
@@ -109,7 +119,7 @@ namespace Magnifying_Glass
                 IntPtr hBitmap = bmp.GetHbitmap();
                 try
                 {
-                    MagnifierImage.Source = Imaging.CreateBitmapSourceFromHBitmap(
+                    MagnifierBrush.ImageSource = Imaging.CreateBitmapSourceFromHBitmap(
                         hBitmap,
                         IntPtr.Zero,
                         Int32Rect.Empty,

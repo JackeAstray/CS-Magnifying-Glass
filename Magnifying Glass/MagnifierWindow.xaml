@@ -10,8 +10,10 @@
         IsHitTestVisible="False">
     <Grid>
         <!-- Adding explicit Margin so the Border doesn't get clipped by the Window bounds when rendering updates -->
-        <Border x:Name="MagnifierBorder" BorderBrush="#00FF00" BorderThickness="1" CornerRadius="0" Margin="1" ClipToBounds="True">
-            <Image x:Name="MagnifierImage" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+        <Border x:Name="MagnifierBorder" BorderBrush="#00FF00" BorderThickness="1" CornerRadius="100" Margin="1">
+            <Border.Background>
+                <ImageBrush x:Name="MagnifierBrush" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+            </Border.Background>
         </Border>
     </Grid>
 </Window>
