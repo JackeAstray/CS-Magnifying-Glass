@@ -1,0 +1,17 @@
+<Window x:Class="Magnifying_Glass.MagnifierWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Magnifier" 
+        WindowStyle="None" 
+        AllowsTransparency="True" 
+        Background="Transparent"
+        Topmost="True" 
+        ShowInTaskbar="False" 
+        IsHitTestVisible="False">
+    <Grid>
+        <!-- Adding explicit Margin so the Border doesn't get clipped by the Window bounds when rendering updates -->
+        <Border x:Name="MagnifierBorder" BorderBrush="#00FF00" BorderThickness="1" CornerRadius="0" Margin="1" ClipToBounds="True">
+            <Image x:Name="MagnifierImage" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+        </Border>
+    </Grid>
+</Window>
